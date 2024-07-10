@@ -2,7 +2,7 @@
  * JavaScript:
  */
 
-CodeMirror.defineSimpleMode("simplemode", {
+CodeMirror.defineSimpleMode("simplemode2", {
   // The start state contains the rules that are initially used
   start: [
     // The regex matches the token, the token property contains the type
