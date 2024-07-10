@@ -1,6 +1,10 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
+// LUA mode. Ported to CodeMirror 2 from Franciszek Wawrzak's
+// CodeMirror 1 mode.
+// highlights keywords, strings, comments (no leveling supported! ("[==[")), tokens, basic indenting
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -11,177 +15,146 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("simplemode2", function(config) {
+CodeMirror.defineMode("simplemode2", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
 
-  var keywords = {
-    "break":true, "case":true, "chan":true, "const":true, "continue":true,
-    "default":true, "defer":true, "else":true, "fallthrough":true, "for":true,
-    "func":true, "go":true, "goto":true, "if":true, "import":true,
-    "interface":true, "map":true, "package":true, "range":true, "return":true,
-    "select":true, "struct":true, "switch":true, "type":true, "var":true,
-    "bool":true, "byte":true, "complex64":true, "complex128":true,
-    "float32":true, "float64":true, "int8":true, "int16":true, "int32":true,
-    "int64":true, "string":true, "uint8":true, "uint16":true, "uint32":true,
-    "uint64":true, "int":true, "uint":true, "uintptr":true, "error": true,
-    "rune":true, "any":true, "comparable":true
-  };
+  function prefixRE(words) {
+    return new RegExp("^(?:" + words.join("|") + ")", "i");
+  }
+  function wordRE(words) {
+    return new RegExp("^(?:" + words.join("|") + ")$", "i");
+  }
+  var specials = wordRE(parserConfig.specials || []);
 
-  var atoms = {
-    "true":true, "false":true, "iota":true, "nil":true, "append":true,
-    "cap":true, "close":true, "complex":true, "copy":true, "delete":true, "imag":true,
-    "len":true, "make":true, "new":true, "panic":true, "print":true,
-    "println":true, "real":true, "recover":true
-  };
+  // long list of standard functions from lua manual
+  var builtins = wordRE([
+    "_G","_VERSION","assert","collectgarbage","dofile","error","getfenv","getmetatable","ipairs","load",
+    "loadfile","loadstring","module","next","pairs","pcall","print","rawequal","rawget","rawset","require",
+    "select","setfenv","setmetatable","tonumber","tostring","type","unpack","xpcall",
 
-  var isOperatorChar = /[+\-*&^%:=<>!|\/]/;
+    "coroutine.create","coroutine.resume","coroutine.running","coroutine.status","coroutine.wrap","coroutine.yield",
 
-  var curPunc;
+    "debug.debug","debug.getfenv","debug.gethook","debug.getinfo","debug.getlocal","debug.getmetatable",
+    "debug.getregistry","debug.getupvalue","debug.setfenv","debug.sethook","debug.setlocal","debug.setmetatable",
+    "debug.setupvalue","debug.traceback",
 
-  function tokenBase(stream, state) {
-    var ch = stream.next();
-    if (ch == '"' || ch == "'" || ch == "`") {
-      state.tokenize = tokenString(ch);
-      return state.tokenize(stream, state);
-    }
-    if (/[\d\.]/.test(ch)) {
-      if (ch == ".") {
-        stream.match(/^[0-9_]+([eE][\-+]?[0-9_]+)?/);
-      } else if (ch == "0") {
-        stream.match(/^[xX][0-9a-fA-F_]+/) || stream.match(/^[0-7_]+/);
-      } else {
-        stream.match(/^[0-9_]*\.?[0-9_]*([eE][\-+]?[0-9_]+)?/);
-      }
-      return "number";
-    }
-    if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
-      curPunc = ch;
-      return null;
-    }
-    if (ch == "/") {
-      if (stream.eat("*")) {
-        state.tokenize = tokenComment;
-        return tokenComment(stream, state);
-      }
-      if (stream.eat("/")) {
-        stream.skipToEnd();
-        return "comment";
-      }
-    }
-    if (isOperatorChar.test(ch)) {
-      stream.eatWhile(isOperatorChar);
-      return "operator";
-    }
-    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
-    var cur = stream.current();
-    if (keywords.propertyIsEnumerable(cur)) {
-      if (cur == "case" || cur == "default") curPunc = "case";
-      return "keyword";
-    }
-    if (atoms.propertyIsEnumerable(cur)) return "atom";
-    return "variable";
+    "close","flush","lines","read","seek","setvbuf","write",
+
+    "io.close","io.flush","io.input","io.lines","io.open","io.output","io.popen","io.read","io.stderr","io.stdin",
+    "io.stdout","io.tmpfile","io.type","io.write",
+
+    "math.abs","math.acos","math.asin","math.atan","math.atan2","math.ceil","math.cos","math.cosh","math.deg",
+    "math.exp","math.floor","math.fmod","math.frexp","math.huge","math.ldexp","math.log","math.log10","math.max",
+    "math.min","math.modf","math.pi","math.pow","math.rad","math.random","math.randomseed","math.sin","math.sinh",
+    "math.sqrt","math.tan","math.tanh",
+
+    "os.clock","os.date","os.difftime","os.execute","os.exit","os.getenv","os.remove","os.rename","os.setlocale",
+    "os.time","os.tmpname",
+
+    "package.cpath","package.loaded","package.loaders","package.loadlib","package.path","package.preload",
+    "package.seeall",
+
+    "string.byte","string.char","string.dump","string.find","string.format","string.gmatch","string.gsub",
+    "string.len","string.lower","string.match","string.rep","string.reverse","string.sub","string.upper",
+
+    "table.concat","table.insert","table.maxn","table.remove","table.sort"
+  ]);
+  var keywords = wordRE(["and","break","elseif","false","nil","not","or","return",
+                         "true","function", "end", "if", "then", "else", "do",
+                         "while", "repeat", "until", "for", "in", "local" ]);
+
+  var indentTokens = wordRE(["function", "if","repeat","do", "\\(", "{"]);
+  var dedentTokens = wordRE(["end", "until", "\\)", "}"]);
+  var dedentPartial = prefixRE(["end", "until", "\\)", "}", "else", "elseif"]);
+
+  function readBracket(stream) {
+    var level = 0;
+    while (stream.eat("=")) ++level;
+    stream.eat("[");
+    return level;
   }
 
-  function tokenString(quote) {
+  function normal(stream, state) {
+    var ch = stream.next();
+    if (ch == "-" && stream.eat("-")) {
+      if (stream.eat("[") && stream.eat("["))
+        return (state.cur = bracketed(readBracket(stream), "comment"))(stream, state);
+      stream.skipToEnd();
+      return "comment";
+    }
+    if (ch == "\"" || ch == "'")
+      return (state.cur = string(ch))(stream, state);
+    if (ch == "[" && /[\[=]/.test(stream.peek()))
+      return (state.cur = bracketed(readBracket(stream), "string"))(stream, state);
+    if (/\d/.test(ch)) {
+      stream.eatWhile(/[\w.%]/);
+      return "number";
+    }
+    if (/[\w_]/.test(ch)) {
+      stream.eatWhile(/[\w\\\-_.]/);
+      return "variable";
+    }
+    return null;
+  }
+
+  function bracketed(level, style) {
     return function(stream, state) {
-      var escaped = false, next, end = false;
-      while ((next = stream.next()) != null) {
-        if (next == quote && !escaped) {end = true; break;}
-        escaped = !escaped && quote != "`" && next == "\\";
+      var curlev = null, ch;
+      while ((ch = stream.next()) != null) {
+        if (curlev == null) {if (ch == "]") curlev = 0;}
+        else if (ch == "=") ++curlev;
+        else if (ch == "]" && curlev == level) { state.cur = normal; break; }
+        else curlev = null;
       }
-      if (end || !(escaped || quote == "`"))
-        state.tokenize = tokenBase;
+      return style;
+    };
+  }
+
+  function string(quote) {
+    return function(stream, state) {
+      var escaped = false, ch;
+      while ((ch = stream.next()) != null) {
+        if (ch == quote && !escaped) break;
+        escaped = !escaped && ch == "\\";
+      }
+      if (!escaped) state.cur = normal;
       return "string";
     };
   }
 
-  function tokenComment(stream, state) {
-    var maybeEnd = false, ch;
-    while (ch = stream.next()) {
-      if (ch == "/" && maybeEnd) {
-        state.tokenize = tokenBase;
-        break;
-      }
-      maybeEnd = (ch == "*");
-    }
-    return "comment";
-  }
-
-  function Context(indented, column, type, align, prev) {
-    this.indented = indented;
-    this.column = column;
-    this.type = type;
-    this.align = align;
-    this.prev = prev;
-  }
-  function pushContext(state, col, type) {
-    return state.context = new Context(state.indented, col, type, null, state.context);
-  }
-  function popContext(state) {
-    if (!state.context.prev) return;
-    var t = state.context.type;
-    if (t == ")" || t == "]" || t == "}")
-      state.indented = state.context.indented;
-    return state.context = state.context.prev;
-  }
-
-  // Interface
-
   return {
-    startState: function(basecolumn) {
-      return {
-        tokenize: null,
-        context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
-        indented: 0,
-        startOfLine: true
-      };
+    startState: function(basecol) {
+      return {basecol: basecol || 0, indentDepth: 0, cur: normal};
     },
 
     token: function(stream, state) {
-      var ctx = state.context;
-      if (stream.sol()) {
-        if (ctx.align == null) ctx.align = false;
-        state.indented = stream.indentation();
-        state.startOfLine = true;
-        if (ctx.type == "case") ctx.type = "}";
-      }
       if (stream.eatSpace()) return null;
-      curPunc = null;
-      var style = (state.tokenize || tokenBase)(stream, state);
-      if (style == "comment") return style;
-      if (ctx.align == null) ctx.align = true;
-
-      if (curPunc == "{") pushContext(state, stream.column(), "}");
-      else if (curPunc == "[") pushContext(state, stream.column(), "]");
-      else if (curPunc == "(") pushContext(state, stream.column(), ")");
-      else if (curPunc == "case") ctx.type = "case";
-      else if (curPunc == "}" && ctx.type == "}") popContext(state);
-      else if (curPunc == ctx.type) popContext(state);
-      state.startOfLine = false;
+      var style = state.cur(stream, state);
+      var word = stream.current();
+      if (style == "variable") {
+        if (keywords.test(word)) style = "keyword";
+        else if (builtins.test(word)) style = "builtin";
+        else if (specials.test(word)) style = "variable-2";
+      }
+      if ((style != "comment") && (style != "string")){
+        if (indentTokens.test(word)) ++state.indentDepth;
+        else if (dedentTokens.test(word)) --state.indentDepth;
+      }
       return style;
     },
 
     indent: function(state, textAfter) {
-      if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
-      var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
-      if (ctx.type == "case" && /^(?:case|default)\b/.test(textAfter)) {
-        state.context.type = "}";
-        return ctx.indented;
-      }
-      var closing = firstChar == ctx.type;
-      if (ctx.align) return ctx.column + (closing ? 0 : 1);
-      else return ctx.indented + (closing ? 0 : indentUnit);
+      var closing = dedentPartial.test(textAfter);
+      return state.basecol + indentUnit * (state.indentDepth - (closing ? 1 : 0));
     },
 
-    electricChars: "{}):",
-    closeBrackets: "()[]{}''\"\"``",
-    fold: "brace",
-    blockCommentStart: "/*",
-    blockCommentEnd: "*/",
-    lineComment: "//"
+    electricInput: /^\s*(?:end|until|else|\)|\})$/,
+    lineComment: "--",
+    blockCommentStart: "--[[",
+    blockCommentEnd: "]]"
   };
 });
 
-CodeMirror.defineMIME("text/x-go", "go");
+CodeMirror.defineMIME("text/x-lua", "lua");
 
 });
