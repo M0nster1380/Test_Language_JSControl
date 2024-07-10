@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("simplemode", function(config) {
+CodeMirror.defineMode("simplemode2", function(config) {
   var indentUnit = config.indentUnit;
 
   var keywords = {
