@@ -174,11 +174,11 @@ CodeMirror.defineMode("simplemode2", function(config) {
     },
 
     electricChars: "{}):",
-    closeBrackets: "()[]{}<>''\"\"``",
+    closeBrackets: "()[]{}''\"\"``",
     fold: "brace",
-    blockCommentStart: "--",
-    blockCommentEnd: "",
-    lineComment: "--"
+    blockCommentStart: "/*",
+    blockCommentEnd: "*/",
+    lineComment: "//"
   };
 });
 
