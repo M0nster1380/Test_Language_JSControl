@@ -11,15 +11,27 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("mylang", function(config) {
+CodeMirror.defineMode("simplemode", function(config) {
   var indentUnit = config.indentUnit;
 
   var keywords = {
-    "mykeyword1": true, "mykeyword2": true, // Добавьте свои ключевые слова
+    "break":true, "case":true, "chan":true, "const":true, "continue":true,
+    "default":true, "defer":true, "else":true, "fallthrough":true, "for":true,
+    "func":true, "go":true, "goto":true, "if":true, "import":true,
+    "interface":true, "map":true, "package":true, "range":true, "return":true,
+    "select":true, "struct":true, "switch":true, "type":true, "var":true,
+    "bool":true, "byte":true, "complex64":true, "complex128":true,
+    "float32":true, "float64":true, "int8":true, "int16":true, "int32":true,
+    "int64":true, "string":true, "uint8":true, "uint16":true, "uint32":true,
+    "uint64":true, "int":true, "uint":true, "uintptr":true, "error": true,
+    "rune":true, "any":true, "comparable":true
   };
 
   var atoms = {
-    "true": true, "false": true, "null": true // Добавьте свои атомы
+    "true":true, "false":true, "iota":true, "nil":true, "append":true,
+    "cap":true, "close":true, "complex":true, "copy":true, "delete":true, "imag":true,
+    "len":true, "make":true, "new":true, "panic":true, "print":true,
+    "println":true, "real":true, "recover":true
   };
 
   var isOperatorChar = /[+\-*&^%:=<>!|\/]/;
@@ -33,7 +45,13 @@ CodeMirror.defineMode("mylang", function(config) {
       return state.tokenize(stream, state);
     }
     if (/[\d\.]/.test(ch)) {
-      stream.match(/^\d+(\.\d+)?/); // Пример для чисел
+      if (ch == ".") {
+        stream.match(/^[0-9_]+([eE][\-+]?[0-9_]+)?/);
+      } else if (ch == "0") {
+        stream.match(/^[xX][0-9a-fA-F_]+/) || stream.match(/^[0-7_]+/);
+      } else {
+        stream.match(/^[0-9_]*\.?[0-9_]*([eE][\-+]?[0-9_]+)?/);
+      }
       return "number";
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
@@ -45,7 +63,7 @@ CodeMirror.defineMode("mylang", function(config) {
         state.tokenize = tokenComment;
         return tokenComment(stream, state);
       }
-      if (stream.eat("/")) {
+      if (stream.eat("--")) {
         stream.skipToEnd();
         return "comment";
       }
@@ -57,6 +75,7 @@ CodeMirror.defineMode("mylang", function(config) {
     stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
+      if (cur == "case" || cur == "default") curPunc = "case";
       return "keyword";
     }
     if (atoms.propertyIsEnumerable(cur)) return "atom";
@@ -163,6 +182,6 @@ CodeMirror.defineMode("mylang", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/x-mylang", "mylang");
+CodeMirror.defineMIME("text/x-go", "go");
 
 });
