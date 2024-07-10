@@ -63,7 +63,7 @@ CodeMirror.defineMode("simplemode", function(config) {
         state.tokenize = tokenComment;
         return tokenComment(stream, state);
       }
-      if (stream.eat("--")) {
+      if (stream.eat("/")) {
         stream.skipToEnd();
         return "comment";
       }
@@ -174,11 +174,11 @@ CodeMirror.defineMode("simplemode", function(config) {
     },
 
     electricChars: "{}):",
-    closeBrackets: "()[]{}''\"\"``",
+    closeBrackets: "()[]{}<>''\"\"``",
     fold: "brace",
-    blockCommentStart: "/*",
-    blockCommentEnd: "*/",
-    lineComment: "//"
+    blockCommentStart: "--",
+    blockCommentEnd: "",
+    lineComment: "--"
   };
 });
 
