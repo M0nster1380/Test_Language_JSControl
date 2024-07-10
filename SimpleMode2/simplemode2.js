@@ -1,6 +1,9 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
+// Начало и подключение модуля
+  /* Этот блок кода используется для определения модуля, совместимого с различными средами 
+  (CommonJS, AMD и браузером). Он обеспечивает загрузку зависимости CodeMirror. */
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -11,9 +14,16 @@
 })(function(CodeMirror) {
 "use strict";
 
+// Определение режима
+  /* Определяется новый режим с именем simplemode2. config содержит 
+  параметры конфигурации, такие как indentUnit. */
 CodeMirror.defineMode("simplemode2", function(config) {
   var indentUnit = config.indentUnit;
-
+  
+  // Определение ключевых слов и атомов 
+    /* keywords и atoms содержат ключевые слова и атомы вашего языка, которые будут 
+    выделяться особым образом. Эти объекты можно заменить на соответствующие 
+    ключевые слова и атомы вашего языка программирования. */
   var keywords = {
     "break":true, "case":true, "chan":true, "const":true, "continue":true,
     "default":true, "defer":true, "else":true, "fallthrough":true, "for":true,
@@ -34,10 +44,17 @@ CodeMirror.defineMode("simplemode2", function(config) {
     "println":true, "real":true, "recover":true
   };
 
+  // Определение операторов
+    /* Регулярное выражение isOperatorChar определяет символы операторов. 
+    Это регулярное выражение можно настроить для операторов вашего языка. */
   var isOperatorChar = /[+\-*&^%:=<>!|\/]/;
 
   var curPunc;
 
+  // Функции токенизации
+  // Основная функция токенизации
+    /* Эта функция определяет правила токенизации для различных элементов языка. 
+    Она обрабатывает строки, числа, комментарии, операторы и прочие символы. */
   function tokenBase(stream, state) {
     var ch = stream.next();
     if (ch == '"' || ch == "'" || ch == "`") {
@@ -82,6 +99,9 @@ CodeMirror.defineMode("simplemode2", function(config) {
     return "variable";
   }
 
+  // Функция токенизации строк
+    /* Эта функция обрабатывает строки. Она продолжает токенизацию 
+    до конца строки или до обнаружения соответствующей закрывающей кавычки. */
   function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, next, end = false;
@@ -95,6 +115,9 @@ CodeMirror.defineMode("simplemode2", function(config) {
     };
   }
 
+  // Функция токенизации комментариев
+    /* Эта функция обрабатывает многострочные комментарии. 
+    Она продолжает токенизацию до конца комментария (*/). */
   function tokenComment(stream, state) {
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
@@ -106,7 +129,11 @@ CodeMirror.defineMode("simplemode2", function(config) {
     }
     return "comment";
   }
-
+  
+  // Контекст и отступы
+  // Контекст
+    /* Эти функции управляют контекстом токенизации. Они помогают правильно 
+    обрабатывать вложенные конструкции, такие как скобки и фигурные скобки. */
   function Context(indented, column, type, align, prev) {
     this.indented = indented;
     this.column = column;
@@ -126,7 +153,9 @@ CodeMirror.defineMode("simplemode2", function(config) {
   }
 
   // Interface
-
+  // Интерфейс режима
+  // Начальное состояние
+    /* Эта функция инициализирует начальное состояние режима. */
   return {
     startState: function(basecolumn) {
       return {
@@ -137,6 +166,9 @@ CodeMirror.defineMode("simplemode2", function(config) {
       };
     },
 
+    // Основная функция токенизации
+      /* Эта функция выполняет токенизацию одной строки. Она использует 
+      состояние и контекст для правильной обработки вложенных конструкций. */
     token: function(stream, state) {
       var ctx = state.context;
       if (stream.sol()) {
@@ -160,7 +192,9 @@ CodeMirror.defineMode("simplemode2", function(config) {
       state.startOfLine = false;
       return style;
     },
-
+    
+    // Функция отступов
+      /* Эта функция определяет, как должны выполняться отступы для различных строк, основываясь на контексте. */
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
@@ -173,6 +207,9 @@ CodeMirror.defineMode("simplemode2", function(config) {
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
+    // Дополнительные параметры
+      /* Эти параметры определяют дополнительные функции режима, такие как автоматическое 
+      закрытие скобок, складывание блоков кода и формат комментариев. */
     electricChars: "{}):",
     closeBrackets: "()[]{}''\"\"``",
     fold: "brace",
@@ -182,6 +219,8 @@ CodeMirror.defineMode("simplemode2", function(config) {
   };
 });
 
+  // Определение MIME-типа
+  /* Этот код связывает MIME-тип text/x-go с созданным режимом. */
 CodeMirror.defineMIME("text/x-go", "go");
 
 });
