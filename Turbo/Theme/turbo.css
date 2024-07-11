@@ -5,10 +5,10 @@
 }
 
 /* Цвета для различных токенов */
-.cm-s-turbo .cm-keyword { color: #483D8B; font-weight: bold; }
-.cm-s-turbo .cm-atom { color: #483D8B; }
-.cm-s-turbo .cm-number { color: #F08080; }
+.cm-s-turbo .cm-keyword { color: #483d8b; font-weight: bold; }
+.cm-s-turbo .cm-atom { color: #483d8b; }
+.cm-s-turbo .cm-number { color: #f08080; }
 .cm-s-turbo .cm-comment { color: #808080; font-style: italic; }
-.cm-s-turbo .cm-string { color: #FFD700; }
-.cm-s-turbo .cm-operator { color: #DCDCDC; }
-.cm-s-turbo .cm-variable { color: #32CD32; }
+.cm-s-turbo .cm-string { color: #ffd700; }
+.cm-s-turbo .cm-operator { color: #dcdcdc; }
+.cm-s-turbo .cm-variable { color: #32cd32; }
