@@ -182,6 +182,6 @@ CodeMirror.defineMode("Turbo", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/x-simplemode", "simplemode");
+CodeMirror.defineMIME("text/x-Turbo", "Turbo");
 
 });
