@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("Turbo", function(config) {
+CodeMirror.defineMode("turbo", function(config) {
   var indentUnit = config.indentUnit;
 
   var keywords = {
@@ -182,6 +182,6 @@ CodeMirror.defineMode("Turbo", function(config) {
   };
 });
 
-CodeMirror.defineMIME("text/x-Turbo", "Turbo");
+CodeMirror.defineMIME("text/x-turbo", "turbo");
 
 });
