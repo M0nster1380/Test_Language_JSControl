@@ -1,0 +1,20 @@
+.cm-s-mytheme .cm-keyword { color: #0000ff; font-weight: bold; } /* Синие жирные ключевые слова */
+.cm-s-mytheme .cm-atom { color: #ff0000; } /* Красные атомы */
+.cm-s-mytheme .cm-number { color: #00ff00; } /* Зеленые числа */
+.cm-s-mytheme .cm-comment { color: #888888; font-style: italic; } /* Серые курсивные комментарии */
+.cm-s-mytheme .cm-string { color: #ff00ff; } /* Фиолетовые строки */
+.cm-s-mytheme .cm-operator { color: #000000; } /* Черные операторы */
+.cm-s-mytheme .cm-variable { color: #008000; } /* Темно-зеленые переменные */
+.cm-s-mytheme .cm-variable-2 { color: #b58900; } /* Переменные второго уровня */
+.cm-s-mytheme .cm-variable-3 { color: #268bd2; } /* Переменные третьего уровня */
+.cm-s-mytheme .cm-def { color: #2aa198; } /* Определения */
+.cm-s-mytheme .cm-bracket { color: #d33682; } /* Скобки */
+.cm-s-mytheme .cm-tag { color: #859900; } /* Теги */
+.cm-s-mytheme .cm-meta { color: #dc322f; } /* Метаинформация */
+.cm-s-mytheme .cm-attribute { color: #6c71c4; } /* Атрибуты */
+.cm-s-mytheme .cm-qualifier { color: #93a1a1; } /* Квалификаторы */
+.cm-s-mytheme .cm-property { color: #b58900; } /* Свойства */
+.cm-s-mytheme .cm-builtin { color: #cb4b16; } /* Встроенные элементы */
+.cm-s-mytheme .cm-qualifier { color: #93a1a1; } /* Квалификаторы */
+.cm-s-mytheme .cm-qualifier { color: #93a1a1; } /* Квалификаторы */
+.cm-s-mytheme .cm-qualifier { color: #93a1a1; } /* Квалификаторы */
