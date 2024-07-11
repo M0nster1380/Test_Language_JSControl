@@ -1,6 +1,6 @@
 /* Общий стиль для CodeMirror */
 .cm-s-turbo.CodeMirror {
-  background: ##121212; /* Цвет фона редактора */
+  background: #121212; /* Цвет фона редактора */
   color: #FFFFFF /* Цвет текста по умолчанию */
 }
 
