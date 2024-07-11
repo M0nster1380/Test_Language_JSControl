@@ -4,7 +4,7 @@
  */
 
 .cm-s-turbo  { font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;}
-.cm-s-turbo.CodeMirror { background: #2B2B2B; color: #A9B7C6; }
+.cm-s-turbo.CodeMirror { background: #808080; color: #A9B7C6; }
 
 .cm-s-turbo span.cm-meta { color: #BBB529; }
 .cm-s-turbo span.cm-number { color: #6897BB; }
