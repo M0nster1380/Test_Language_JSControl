@@ -1,14 +1,14 @@
 /* Общий стиль для CodeMirror */
-.cm-s-Turbo.CodeMirror {
+.cm-s-turbo.CodeMirror {
   background: #f0f0f0; /* Цвет фона редактора */
   color: #000000; /* Цвет текста по умолчанию */
 }
 
 /* Цвета для различных токенов */
-.cm-s-Turbo .cm-keyword { color: #0000ff; font-weight: bold; }
-.cm-s-Turbo .cm-atom { color: #ff0000; }
-.cm-s-Turbo .cm-number { color: #00ff00; }
-.cm-s-Turbo .cm-comment { color: #888888; font-style: italic; }
-.cm-s-Turbo .cm-string { color: #ff00ff; }
-.cm-s-Turbo .cm-operator { color: #000000; }
-.cm-s-Turbo .cm-variable { color: #008000; }
+.cm-s-turbo .cm-keyword { color: #0000ff; font-weight: bold; }
+.cm-s-turbo .cm-atom { color: #ff0000; }
+.cm-s-turbo .cm-number { color: #00ff00; }
+.cm-s-turbo .cm-comment { color: #888888; font-style: italic; }
+.cm-s-turbo .cm-string { color: #ff00ff; }
+.cm-s-turbo .cm-operator { color: #000000; }
+.cm-s-turbo .cm-variable { color: #008000; }
